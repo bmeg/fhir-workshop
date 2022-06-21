@@ -131,3 +131,32 @@ def test_genomics_reporting(genomic_reporting_file_paths, tmp_dir, manual_inspec
                 assert plan_definition.__class__.__name__ == 'PlanDefinition'
                 assert plan_definition.resource_type == 'PlanDefinition'
                 assert plan_definition.id == 'PlanDefRuxolitinib'
+
+
+def test_synthea(synthea_file_paths, tmp_dir, manual_inspect):
+    """Ensure that genomics_reporting examples are marshalled into FHIR resources"""
+    manual_inspect = True
+    if manual_inspect:
+        tmp_dir = '/tmp'
+    else:
+        tmp_dir = tempfile.mkdtemp()
+
+    # details
+    graph = load_graph('synthea', synthea_file_paths, expected_resource_count=104000, strict=False)
+    # path = os.path.join(tmp_dir, 'synthea.png')
+    # draw_graph(graph, path=path, layout='spring_layout')
+    # assert os.path.isfile(path)
+    # if not manual_inspect:
+    #     os.unlink(path)
+    # else:
+    #     logger.info(path)
+
+    # summary
+    path = os.path.join(tmp_dir, 'synthea-summary.png')
+    summary_graph = summarize_graph(graph)
+    draw_graph(summary_graph, path=path)
+    assert os.path.isfile(path)
+    if not manual_inspect:
+        os.unlink(path)
+    else:
+        logger.info(path)

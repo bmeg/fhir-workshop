@@ -21,7 +21,7 @@ def dbgap_file_paths():
 
 @fixture
 def synthea_file_paths():
-    return fhir_workshop.manifests.dbgap_file_paths()
+    return fhir_workshop.manifests.synthea_file_paths()
 
 
 @fixture
