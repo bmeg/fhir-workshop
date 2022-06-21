@@ -3,7 +3,7 @@ import tempfile
 from collections import namedtuple, defaultdict
 import logging
 
-from fhir_workshop.graph import load_graph, draw_graph, summarize_graph
+from fhir_workshop.graph import load_graph, draw_graph, summarize_graph, find_by_resource_type, find_nearest
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -43,6 +43,15 @@ def test_ncpi(ncpi_file_paths, tmp_dir, manual_inspect):
     # ensure that bidirectional edge drawn
     edges = graph.edges('ResearchStudy/research-study-example-1')
     assert 'ResearchSubject/research-subject-example-3' in [destination for source, destination in edges]
+
+    # make sure we can navigate, returns tuple of id and attribute ids
+    patients = find_by_resource_type(graph, 'Patient')
+    assert len(patients) == 2, "should have 2 patients"
+    assert len([dict_ for name, dict_ in patients if dict_]) == 2, "should return dicts as well"
+
+    #
+    research_studies = find_nearest(graph, 'Patient/patient-example-1', 'ResearchStudy')
+    assert len(research_studies) > 0, "Should traverse Patient to ResearchStudy"
 
     # ensure extensions mapped
     # "retrieve" the patient
