@@ -144,11 +144,6 @@ def test_genomics_reporting(genomic_reporting_file_paths, tmp_dir, manual_inspec
 
 def test_synthea(synthea_file_paths, tmp_dir, manual_inspect):
     """Ensure that genomics_reporting examples are marshalled into FHIR resources"""
-    manual_inspect = True
-    if manual_inspect:
-        tmp_dir = '/tmp'
-    else:
-        tmp_dir = tempfile.mkdtemp()
 
     # details
     graph = load_graph('synthea', synthea_file_paths, expected_resource_count=104000, strict=False)
@@ -162,6 +157,30 @@ def test_synthea(synthea_file_paths, tmp_dir, manual_inspect):
 
     # summary
     path = os.path.join(tmp_dir, 'synthea-summary.png')
+    summary_graph = summarize_graph(graph)
+    draw_graph(summary_graph, path=path)
+    assert os.path.isfile(path)
+    if not manual_inspect:
+        os.unlink(path)
+    else:
+        logger.info(path)
+
+
+def test_phs000424(phs000424_file_paths, tmp_dir, manual_inspect):
+    """Ensure that phs000424 examples are marshalled into FHIR resources"""
+
+    # details
+    graph = load_graph('phs000424', phs000424_file_paths, expected_resource_count=71494, strict=False)
+    # path = os.path.join(tmp_dir, 'synthea.png')
+    # draw_graph(graph, path=path, layout='spring_layout')
+    # assert os.path.isfile(path)
+    # if not manual_inspect:
+    #     os.unlink(path)
+    # else:
+    #     logger.info(path)
+
+    # summary
+    path = os.path.join(tmp_dir, 'phs000424-summary.png')
     summary_graph = summarize_graph(graph)
     draw_graph(summary_graph, path=path)
     assert os.path.isfile(path)

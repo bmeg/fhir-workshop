@@ -53,7 +53,7 @@ def load_graph(name, file_paths, expected_resource_count, strict=True) -> nx.Gra
         # add a reverse link back
         graph.add_edge(edge.destination_id, edge.source_id, name=f"{edge.name}_")
         logger.debug(f"graph add edge {edge}")
-    assert graph.number_of_nodes() == resource_count
+    assert graph.number_of_nodes() == resource_count, f"{graph.number_of_nodes()} != {resource_count} ?"
     assert resource_count >= expected_resource_count, resource_count
     assert len(graph.edges) > 0
     logger.debug(f"Graph {graph.graph['name']} nodes: {graph.number_of_nodes()} edges: {graph.number_of_edges()}")
@@ -65,6 +65,10 @@ def _process_fhir_file(graph, edges, file_path, resource_count, strict):
     for resource in read_resources(file_path, strict=strict):
         # add node to graph
         node_id = f"{resource.resource_type}/{resource.id}"
+        # check if already in graph
+        if graph.nodes.get(node_id):
+            logger.debug(f"{node_id} already in graph?")
+            continue
         graph.add_node(node_id, resource=resource, resource_type=resource.resource_type)
         logger.debug(f"graph add node {node_id} {file_path}")
         # inspect properties, look for references, xform to edges
@@ -168,23 +172,22 @@ def draw_graph(graph, path=None, layout='planar_layout', title=None):
 
 
 def find_by_resource_type(graph_, resource_type):
-    """return those nodes in graph G that match type = resource_type."""
+    """Return those nodes in graph G that match type = resource_type."""
     return [(name, d) for name, d in graph_.nodes(data=True)
             if 'resource_type' in d and (d['resource_type'] == resource_type)]
 
 
-# All computations happen in this function
-def find_nearest(graph_, from_node, resource_type ):
-
+def find_nearest(graph_, from_node, resource_type):
+    """Find all nodes of resource_type connected to from_node. """
     # Calculate the length of paths from from_node to all other nodes
-    lengths=nx.single_source_dijkstra_path_length(graph_, from_node, weight='distance')
+    lengths = nx.single_source_dijkstra_path_length(graph_, from_node, weight='distance')
     paths = nx.single_source_dijkstra_path(graph_, from_node)
 
     # We are only interested in a particular type of node
     sub_nodes = [name for name, dict_ in find_by_resource_type(graph_, resource_type)]
     sub_dict = {k: v for k, v in lengths.items() if k in sub_nodes}
 
-    # return the smallest of all lengths to get to typeofnode
+    # return the smallest of all lengths to get to resource_type
     if sub_dict:  # dict of shortest paths to all entrances/toilets
         nearest = min(sub_dict, key=sub_dict.get)  # shortest value among all the keys
         return nearest, sub_dict[nearest], paths[nearest]

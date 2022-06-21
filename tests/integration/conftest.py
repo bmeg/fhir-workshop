@@ -35,9 +35,14 @@ def anvil_file_paths():
 
 
 @fixture
+def phs000424_file_paths():
+    return fhir_workshop.manifests.phs000424_file_paths()
+
+
+@fixture
 def manual_inspect():
     """If true, don't delete test output files."""
-    return False
+    return True
 
 
 @fixture

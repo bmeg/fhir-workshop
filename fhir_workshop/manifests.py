@@ -55,3 +55,9 @@ def anvil_file_paths(fixtures_path=default_fixtures_path()):
     """anvil file examples."""
     anvil_path = f"{fixtures_path}/anvil"
     return glob(f"{anvil_path}/fhir/public/Public/1000G-high-coverage-2019/public/*.ndjson") + glob(f"{anvil_path}/fhir/public/Public/1000G-high-coverage-2019/protected/*.ndjson")
+
+
+def phs000424_file_paths(fixtures_path=default_fixtures_path()):
+    """GTEx file examples."""
+    phs000424_path = f"{fixtures_path}/phs000424-GRU/GTEx/AnVIL_GTEx_V8_hg38/"
+    return glob(f"{phs000424_path}/public/*.ndjson") + glob(f"{phs000424_path}/protected/*.ndjson")
