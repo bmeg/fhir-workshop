@@ -40,6 +40,19 @@ def test_ncpi(ncpi_file_paths, tmp_dir, manual_inspect):
     assert principal_investigator.resource_type == 'PractitionerRole'
     assert principal_investigator.id == 'practitioner-role-example-1'
 
+    # ensure that bidirectional edge drawn
+    edges = graph.edges('ResearchStudy/research-study-example-1')
+    assert 'ResearchSubject/research-subject-example-3' in [destination for source, destination in edges]
+
+    # ensure extensions mapped
+    # "retrieve" the patient
+    patient_example_3 = graph.nodes['Patient/patient-example-3']['resource']
+    simplified_js, simplified_schema = patient_example_3.as_simplified_json()
+    from flatten_json import flatten
+    flattened = flatten(simplified_js)
+    assert flattened['extension_us-core-race'], 'extension_us-core-race null?'
+    assert flattened['extension_us-core-ethnicity'], 'extension_us-core-race null?'
+
 
 def test_kf(kf_file_paths, tmp_dir, manual_inspect):
     """Ensure that Kids first examples are marshalled into FHIR resources"""

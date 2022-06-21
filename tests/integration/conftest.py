@@ -1,9 +1,6 @@
 import tempfile
 
 from pytest import fixture
-from glob import glob
-import os
-from pathlib import Path
 import fhir_workshop.manifests
 
 

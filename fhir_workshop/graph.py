@@ -32,7 +32,8 @@ FHIRReference.resolved = _static_reference_resolved
 
 
 def load_graph(name, file_paths, expected_resource_count, strict=True) -> nx.Graph:
-    """Inspect resource's references, load into a graph, resolve resource's references, including extensions."""
+    """Inspect resource's references, load into a graph, create bidirectional links,
+     resolve resource's references, including extensions."""
     graph = nx.MultiDiGraph(name=name)
     resource_count = 0
     edges = []
@@ -49,6 +50,8 @@ def load_graph(name, file_paths, expected_resource_count, strict=True) -> nx.Gra
         destination_resource = graph.nodes.get(edge.destination_id)['resource']
         source_resource.didResolveReference(edge.destination_id, destination_resource)
         graph.add_edge(edge.source_id, edge.destination_id, name=edge.name)
+        # add a reverse link back
+        graph.add_edge(edge.destination_id, edge.source_id, name=f"{edge.name}_")
         logger.debug(f"graph add edge {edge}")
     assert graph.number_of_nodes() == resource_count
     assert resource_count >= expected_resource_count, resource_count
