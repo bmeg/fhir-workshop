@@ -1,0 +1,4 @@
+pytest
+# see https://github.com/csachs/pyproject-flake8
+# Call pflake8 instead of flake8.
+pyproject-flake8
