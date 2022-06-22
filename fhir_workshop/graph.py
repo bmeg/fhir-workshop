@@ -31,19 +31,44 @@ def _static_reference_resolved(self,  klass=None) -> Resource:
 FHIRReference.resolved = _static_reference_resolved
 
 
-def load_graph(name, file_paths, expected_resource_count, strict=True) -> nx.Graph:
+def load_graph(name, file_paths, expected_resource_count, strict=True, check_edges=False) -> nx.Graph:
     """Inspect resource's references, load into a graph, create bidirectional links,
      resolve resource's references, including extensions."""
-    graph = nx.MultiDiGraph(name=name)
+
+    # from datetime import datetime
+    # print('load_graph start', datetime.now().isoformat())
+
+    graph = nx.MultiDiGraph(name=name, aliases={})
+
     resource_count = 0
     edges = []
     for file_path in file_paths:
         resource_count = _process_fhir_file(graph, edges, file_path, resource_count, strict)
+
+    # print('load_graph finished _process_fhir_file', datetime.now().isoformat())
+
+    # first validate node existence, resolve any aliases
+    to_ignore = {}
+    to_add = []
     for edge in edges:
         # the source must exist
-        assert graph.nodes.get(edge.source_id)
-        # warn if no destination
-        if not graph.nodes.get(edge.destination_id):
+        if check_edges:
+            assert graph.nodes.get(edge.source_id)
+        # only look at the identifier xxxxxx?identifier=XXXXX
+        if 'identifier' in edge.destination_id:
+            alias_lookup = edge.destination_id.split('?')[-1]
+            if alias_lookup in graph.graph['aliases']:
+                to_add.append(edge._replace(destination_id=graph.graph['aliases'][alias_lookup]))
+                to_ignore[edge.destination_id] = None
+    edges.extend(to_add)
+
+    # print('load_graph finished alias check', datetime.now().isoformat())
+
+    # create bidirectional edges and fill in the source resource's resolvedReference
+    for edge in edges:
+        if edge.destination_id in to_ignore:
+            continue
+        if check_edges and not graph.nodes.get(edge.destination_id):
             logger.warning(f"No destination {edge.name} {edge.destination_id} from {edge.source_id}")
             continue
         source_resource = graph.nodes.get(edge.source_id)['resource']
@@ -52,11 +77,12 @@ def load_graph(name, file_paths, expected_resource_count, strict=True) -> nx.Gra
         graph.add_edge(edge.source_id, edge.destination_id, name=edge.name)
         # add a reverse link back
         graph.add_edge(edge.destination_id, edge.source_id, name=f"{edge.name}_")
-        logger.debug(f"graph add edge {edge}")
+
     assert graph.number_of_nodes() == resource_count, f"{graph.number_of_nodes()} != {resource_count} ?"
     assert resource_count >= expected_resource_count, resource_count
     assert len(graph.edges) > 0
-    logger.debug(f"Graph {graph.graph['name']} nodes: {graph.number_of_nodes()} edges: {graph.number_of_edges()}")
+
+    # print('load_graph finished edge creation ', datetime.now().isoformat())
     return graph
 
 
@@ -67,10 +93,14 @@ def _process_fhir_file(graph, edges, file_path, resource_count, strict):
         node_id = f"{resource.resource_type}/{resource.id}"
         # check if already in graph
         if graph.nodes.get(node_id):
-            logger.debug(f"{node_id} already in graph?")
+            logger.warning(f"{node_id} already in graph?")
             continue
         graph.add_node(node_id, resource=resource, resource_type=resource.resource_type)
-        logger.debug(f"graph add node {node_id} {file_path}")
+        # add aliases
+        if resource.identifier:
+            for identifier in resource.identifier:
+                graph.graph['aliases'][f"identifier={identifier.system}|{identifier.value}"] = node_id
+        # logger.debug(f"graph add node {node_id} {file_path}")
         # inspect properties, look for references, xform to edges
         has_variable_reference = _find_references_in_variables(edges, node_id, resource)
         has_extension_reference = _find_references_in_extension(edges, node_id, resource)
