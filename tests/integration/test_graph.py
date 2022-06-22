@@ -188,3 +188,9 @@ def test_phs000424(phs000424_file_paths, tmp_dir, manual_inspect):
         os.unlink(path)
     else:
         logger.info(path)
+
+    patients = find_by_resource_type(graph, 'Patient')
+    assert len(patients) == 979, "should have 979 patients"
+    assert len([dict_ for name, dict_ in patients if dict_]) == 979, "should return dicts as well"
+
+
