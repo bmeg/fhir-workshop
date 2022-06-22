@@ -1,7 +1,8 @@
 import os
 import tempfile
-from collections import namedtuple, defaultdict
 import logging
+import typing
+from flatten_json import flatten
 
 from fhir_workshop.graph import load_graph, draw_graph, summarize_graph, find_by_resource_type, find_nearest
 
@@ -144,9 +145,13 @@ def test_genomics_reporting(genomic_reporting_file_paths, tmp_dir, manual_inspec
 
 def test_synthea(synthea_file_paths, tmp_dir, manual_inspect):
     """Ensure that genomics_reporting examples are marshalled into FHIR resources"""
+    from datetime import datetime
 
     # details
-    graph = load_graph('synthea', synthea_file_paths, expected_resource_count=104000, strict=False)
+    print('start', datetime.now().isoformat())
+    graph = load_graph('synthea', synthea_file_paths, expected_resource_count=104000, strict=False, check_edges=False)
+    print('finished load', datetime.now().isoformat())
+
     # path = os.path.join(tmp_dir, 'synthea.png')
     # draw_graph(graph, path=path, layout='spring_layout')
     # assert os.path.isfile(path)
@@ -158,12 +163,35 @@ def test_synthea(synthea_file_paths, tmp_dir, manual_inspect):
     # summary
     path = os.path.join(tmp_dir, 'synthea-summary.png')
     summary_graph = summarize_graph(graph)
-    draw_graph(summary_graph, path=path)
+    draw_graph(summary_graph, path=path, layout='spring_layout')
     assert os.path.isfile(path)
     if not manual_inspect:
         os.unlink(path)
     else:
         logger.info(path)
+    print('finished summary', datetime.now().isoformat())
+
+    # "retrieve" the patients
+    patients = find_by_resource_type(graph, 'Patient')
+    # count the tuples that returned
+    assert len(patients) == 122, "should have 122 patients"
+    # get the FHIR resource
+    patients = [dict_['resource'] for id_, dict_ in patients]
+    flattened_patients = [flatten(patient.as_simplified_json()[0]) for patient in patients]
+    for flattened in flattened_patients:
+        for simplified_key, simplified_values in flattened.items():
+            if not simplified_values:
+                continue
+            if not isinstance(simplified_values, typing.List):
+                simplified_values = [simplified_values]
+            for simplified_value in simplified_values:
+                simplified_value_is_fhir_resource = 'fhirclient.models' in simplified_value.__class__.__module__
+                simplified_value_is_dict = isinstance(simplified_value, dict)
+                if simplified_value_is_fhir_resource or simplified_value_is_dict:
+                    msg = "Should simplify value {} {} {}".format(simplified_key, simplified_value.__class__.__name__,
+                                                                  vars(simplified_value))
+                    assert not simplified_value_is_fhir_resource, msg
+    print('finished flattened_patients', datetime.now().isoformat())
 
 
 def test_phs000424(phs000424_file_paths, tmp_dir, manual_inspect):
