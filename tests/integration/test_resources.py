@@ -10,7 +10,7 @@ def _load_resources(file_paths, expected_resource_count, strict=True):
             assert isinstance(resource,
                               DomainResource), f"Error reading {file_path}. Should be DomainResource, was {resource.__class__}"
             resource_count += 1
-    assert resource_count > expected_resource_count, resource_count
+    assert resource_count >= expected_resource_count, resource_count
 
 
 def test_ncpi(ncpi_file_paths):
@@ -49,3 +49,9 @@ def test_anvil(anvil_file_paths):
 def test_phs000424(phs000424_file_paths):
     """Ensure that GTEx is marshalled into FHIR resources"""
     _load_resources(phs000424_file_paths, expected_resource_count=71494)
+
+
+def test_gtex_v8(gtex_v8_file_paths):
+    """Ensure that GTEx is marshalled into FHIR resources"""
+    _load_resources(gtex_v8_file_paths, expected_resource_count=5079)
+

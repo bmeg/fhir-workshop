@@ -236,3 +236,19 @@ def test_anvil(anvil_file_paths, tmp_dir, manual_inspect):
         os.unlink(path)
     else:
         logger.info(path)
+
+
+def test_gtex_v8(gtex_v8_file_paths, tmp_dir, manual_inspect):
+    """Ensure that gtex_v8 examples are marshalled into FHIR resources"""
+
+    # details
+    graph = load_graph('gtex_v8', gtex_v8_file_paths, expected_resource_count=5062, strict=True, check_edges=True)
+    # summary
+    path = os.path.join(tmp_dir, 'gtex_v8-summary.png')
+    summary_graph = summarize_graph(graph)
+    draw_graph(summary_graph, path=path)
+    assert os.path.isfile(path)
+    if not manual_inspect:
+        os.unlink(path)
+    else:
+        logger.info(path)

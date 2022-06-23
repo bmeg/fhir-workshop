@@ -61,3 +61,9 @@ def phs000424_file_paths(fixtures_path=default_fixtures_path()):
     """GTEx file examples."""
     phs000424_path = f"{fixtures_path}/phs000424-GRU/GTEx/AnVIL_GTEx_V8_hg38/"
     return glob(f"{phs000424_path}/public/*.ndjson") + glob(f"{phs000424_path}/protected/*.ndjson")
+
+
+def gtex_v8_file_paths(fixtures_path=default_fixtures_path()):
+    """GTEx file examples."""
+    gtex_v8_path = f"{fixtures_path}/gtex_v8/"
+    return glob(f"{gtex_v8_path}/*.ndjson")

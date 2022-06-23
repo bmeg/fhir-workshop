@@ -40,6 +40,11 @@ def phs000424_file_paths():
 
 
 @fixture
+def gtex_v8_file_paths():
+    return fhir_workshop.manifests.gtex_v8_file_paths()
+
+
+@fixture
 def manual_inspect():
     """If true, don't delete test output files."""
     return True

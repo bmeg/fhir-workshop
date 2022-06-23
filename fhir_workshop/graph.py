@@ -79,7 +79,7 @@ def load_graph(name, file_paths, expected_resource_count, strict=True, check_edg
         graph.add_edge(edge.destination_id, edge.source_id, name=f"{edge.name}_")
 
     assert graph.number_of_nodes() == resource_count, f"{graph.number_of_nodes()} != {resource_count} ?"
-    assert resource_count >= expected_resource_count, resource_count
+    assert resource_count >= expected_resource_count, f"! {resource_count} >= {expected_resource_count}"
     assert len(graph.edges) > 0
 
     # print('load_graph finished edge creation ', datetime.now().isoformat())
@@ -98,7 +98,10 @@ def _process_fhir_file(graph, edges, file_path, resource_count, strict):
         graph.add_node(node_id, resource=resource, resource_type=resource.resource_type)
         # add aliases
         if resource.identifier:
-            for identifier in resource.identifier:
+            resource_identifiers = resource.identifier
+            if not isinstance(resource_identifiers, list):
+                resource_identifiers = [resource_identifiers]
+            for identifier in resource_identifiers:
                 graph.graph['aliases'][f"identifier={identifier.system}|{identifier.value}"] = node_id
         # logger.debug(f"graph add node {node_id} {file_path}")
         # inspect properties, look for references, xform to edges
