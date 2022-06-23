@@ -222,3 +222,17 @@ def test_phs000424(phs000424_file_paths, tmp_dir, manual_inspect):
     assert len([dict_ for name, dict_ in patients if dict_]) == 979, "should return dicts as well"
 
 
+def test_anvil(anvil_file_paths, tmp_dir, manual_inspect):
+    """Ensure that 1000G examples are marshalled into FHIR resources"""
+
+    # details
+    graph = load_graph('1000G', anvil_file_paths, expected_resource_count=12528, strict=False)
+    # summary
+    path = os.path.join(tmp_dir, '1000G-summary.png')
+    summary_graph = summarize_graph(graph)
+    draw_graph(summary_graph, path=path)
+    assert os.path.isfile(path)
+    if not manual_inspect:
+        os.unlink(path)
+    else:
+        logger.info(path)

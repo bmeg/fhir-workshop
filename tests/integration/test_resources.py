@@ -43,7 +43,7 @@ def test_genomic_reporting(genomic_reporting_file_paths):
 
 def test_anvil(anvil_file_paths):
     """Ensure that anvil is marshalled into FHIR resources"""
-    _load_resources(anvil_file_paths, expected_resource_count=22000)
+    _load_resources(anvil_file_paths, expected_resource_count=15000)
 
 
 def test_phs000424(phs000424_file_paths):
