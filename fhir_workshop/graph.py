@@ -80,7 +80,7 @@ def load_graph(name, file_paths, expected_resource_count, strict=True, check_edg
 
     assert graph.number_of_nodes() == resource_count, f"{graph.number_of_nodes()} != {resource_count} ?"
     assert resource_count >= expected_resource_count, f"! {resource_count} >= {expected_resource_count}"
-    assert len(graph.edges) > 0
+    # assert len(graph.edges) > 0
 
     # print('load_graph finished edge creation ', datetime.now().isoformat())
     return graph
@@ -142,6 +142,13 @@ def _find_references_in_variables(edges, node_id, resource):
             ref_id = item.processedReferenceIdentifier()
             edges.append(EdgeInfo(node_id, ref_id, variable_name))
             has_reference = True
+        # special handling for Task.output
+        if resource.resource_type == 'Task' and resource.output:
+            for task_output in resource.output:
+                if task_output.valueReference:
+                    ref_id = task_output.valueReference.processedReferenceIdentifier()
+                    edges.append(EdgeInfo(node_id, ref_id, variable_name))
+                    has_reference = True
     return has_reference
 
 
@@ -221,7 +228,7 @@ def find_nearest(graph_, from_node, resource_type):
     sub_dict = {k: v for k, v in lengths.items() if k in sub_nodes}
 
     # return the smallest of all lengths to get to resource_type
-    if sub_dict:  # dict of shortest paths to all entrances/toilets
+    if sub_dict:  # dict of shortest paths
         nearest = min(sub_dict, key=sub_dict.get)  # shortest value among all the keys
         return nearest, sub_dict[nearest], paths[nearest]
     else:  # not found, no path from source to typeofnode
