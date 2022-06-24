@@ -242,7 +242,7 @@ def test_gtex_v8(gtex_v8_file_paths, tmp_dir, manual_inspect):
     """Ensure that gtex_v8 examples are marshalled into FHIR resources"""
 
     # details
-    graph = load_graph('gtex_v8', gtex_v8_file_paths, expected_resource_count=5062, strict=True, check_edges=True)
+    graph = load_graph('gtex_v8', gtex_v8_file_paths, expected_resource_count=980, strict=True, check_edges=True)
     # summary
     path = os.path.join(tmp_dir, 'gtex_v8-summary.png')
     summary_graph = summarize_graph(graph)
@@ -252,3 +252,11 @@ def test_gtex_v8(gtex_v8_file_paths, tmp_dir, manual_inspect):
         os.unlink(path)
     else:
         logger.info(path)
+
+    patient_id = 'Patient/0f2f77e4-fd3d-48cf-8857-65489286e95f'
+    research_studies = find_nearest(graph, patient_id, 'ResearchStudy')
+    assert research_studies[0], f"Should traverse Patient to ResearchStudy {research_studies}"
+    research_study = graph.nodes[research_studies[0]]['resource']
+    observations = find_nearest(graph, patient_id, 'Observation')
+
+    f"{patient_id} belongs to ResearchStudy {research_study.identifier[0].value}, and has {len(observations)} observations"
