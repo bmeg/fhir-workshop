@@ -38,4 +38,38 @@ FHIR resources are heavily namespaced and verbose. As such, the resulting data f
 
 * Open the terra terminal, navigate to `ncpi-fhir-code-a-thon/edit/fhir-workshop`
 * Clone the `git clone https://github.com/bmeg/fhir-workshop`
-* Install the dependencies `pip install -r fhir-workshop/requirements.txt`
+* Install the dependencies `pip install -e .`
+
+## data retrieval
+
+This script will use the `anvil_curl` command to export data from the Google Healthcare API.
+
+From the fhir_workshop root directory:
+
+```commandline
+
+export FHIR_PROJECT=ncpi-fhir-cat-2022
+export LOCATION=us-central1
+export GOOGLE_LOCATION=us-central1
+export GOOGLE_DATASET=GTEx_Open_Access
+export GOOGLE_DATASTORES=gtex_v8
+
+cd tests/fixtures
+mkdir gtex_v8
+cd gtex_v8
+
+anvil_curl /Group?_count=1000 | jq -c '.entry[] | .resource' > Group.ndjson
+anvil_curl /ResearchSubject?_count=1000 | jq -c '.entry[] | .resource' > ResearchSubject.ndjson
+anvil_curl /ActivityDefinition?_count=1000 | jq -c '.entry[] | .resource' > ActivityDefinition.ndjson
+anvil_curl /Organization?_count=1000 | jq -c '.entry[] | .resource' > Organization.ndjson
+anvil_curl /ResearchStudy?_count=1000 | jq -c '.entry[] | .resource' > ResearchStudy.ndjson
+anvil_curl /Patient?_count=1000 | jq -c '.entry[] | .resource' > Patient.ndjson
+anvil_curl /DocumentReference?_count=1000 | jq -c '.entry[] | .resource' > DocumentReference.ndjson
+anvil_curl /ObservationDefinition?_count=1000 | jq -c '.entry[] | .resource' > ObservationDefinition.ndjson
+anvil_curl /ValueSet?_count=1000 | jq -c '.entry[] | .resource' > ValueSet.ndjson
+anvil_curl /ConceptMap?_count=1000 | jq -c '.entry[] | .resource' > ConceptMap.ndjson
+anvil_curl /CodeSystem?_count=1000 | jq -c '.entry[] | .resource' > CodeSystem.ndjson
+anvil_curl /Observation?_count=1000 | jq -c '.entry[] | .resource' > Observation.ndjson
+anvil_curl /Specimen?_count=1000 | jq -c '.entry[] | .resource' > Specimen.ndjson
+
+```
