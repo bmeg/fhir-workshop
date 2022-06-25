@@ -45,14 +45,13 @@ Each of the use cases has a different set of FHIR resources and associated links
 
 ## data retrieval
 
-This script will use the `anvil_curl` command to export data from the Google Healthcare API.
+This script will use the `anvil_curl` command to export data from the Google Healthcare API.  The retrieves the token from the terra environment, and passes the search path to the google FHIR endpoint. It retrieves all entries by a=utomatically following `next` links.
 
 From the fhir_workshop root directory:
 
 ```commandline
 
 export FHIR_PROJECT=ncpi-fhir-cat-2022
-export LOCATION=us-central1
 export GOOGLE_LOCATION=us-central1
 export GOOGLE_DATASET=GTEx_Open_Access
 export GOOGLE_DATASTORES=gtex_v8
