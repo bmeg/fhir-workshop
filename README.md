@@ -25,18 +25,21 @@ Notebooks are provided for each use case.
 ## data frames
 
 ### nested document representation
-Our first decision is how to bridge the gap between FHIR’s document model and the data frame's property approaches. Essentially that came down to decompose - expand the document into a set of individual graph nodes of arbitrary depth, or flatten - reshape the data to remove nesting. We selected flatten as it reduces complexity in the resulting graph and more naturally fits with the columnar data stores and spreadsheet like interfaces in destination systems. 
-Our design choice to flatten the FHIR resource presented an additional challenge, the readability of the resulting data frame in the target tool. By default, pfb_fhir will flatten all of these fields, supporting an “unflatten” operation to re-constitute a FHIR resource. This has a downside, the readability of the resulting data frame. For example, a typical Patient resource might have over 70 separate fields in the FHIR resource. Over half of these fields are scaffolding, supporting namespacing, vocabularies and rendering. The result is attribute names with embedded array indices e.g. “identifier_3_type_coding_0_code”. pfb_fhir’s simplify option will collapse single item arrays, extract coding attributes, collapse extensions and identifiers resulting in a data frame with roughly half the number of attributes.
 
+Our first decision is how to bridge the gap between FHIR’s document model and the data frame's property approaches. 
+Essentially that came down to decompose - expand the document into a set of individual graph nodes of arbitrary depth, or flatten - reshape the data to remove nesting. 
+We selected flatten as it reduces complexity in the resulting graph and more naturally fits with the columnar data stores and spreadsheet like interfaces in destination systems, e.g. Terra's data tables or Gen3's data dictionary. 
 
 ### simplify
 FHIR resources are heavily namespaced and verbose. As such, the resulting data frame is heavily decorated with these urls and enumeration. The simplify option is a first attempt to make the resulting nodes more `data frame friendly`.
 
+### ad-hoc flattening
+Each of the use cases has a different set of FHIR resources and associated links.  The notebooks have examples of customizing a data frame for the use case.
 
 ## setup
 
 
-* Open the terra terminal, navigate to `ncpi-fhir-code-a-thon/edit/fhir-workshop`
+* Open the terra terminal, navigate to `<your-workspace-name-here>/edit/fhir-workshop`
 * Clone the `git clone https://github.com/bmeg/fhir-workshop`
 * Install the dependencies `pip install -e .`
 
