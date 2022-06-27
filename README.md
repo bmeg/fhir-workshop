@@ -80,6 +80,8 @@ To retrieve Kids First data:
 
 ```commandline
 
+export KIDS_FIRST_COOKIE=AWSELBAuthSessionCookie-0=.....
+
 kf_curl https://kf-api-fhir-service.kidsfirstdrc.org/ResearchSubject?_tag=SD_DYPMEHHF&_count=1000 > /tmp/ResearchSubject.json
 kf_curl https://kf-api-fhir-service.kidsfirstdrc.org/Patient?_tag=SD_DYPMEHHF&_count=1000 > /tmp/Patient.json
 kf_curl https://kf-api-fhir-service.kidsfirstdrc.org/Specimen?_tag=SD_DYPMEHHF&_count=1000 > /tmp/Specimen.json
