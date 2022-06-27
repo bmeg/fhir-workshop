@@ -124,6 +124,7 @@ setup(
     entry_points={
         'console_scripts': [
             'anvil_curl = anvil.clients.fhir_curl:cli',
+            'kf_curl = anvil.clients.kf_curl:cli',
         ],
     },
 

@@ -76,3 +76,16 @@ anvil_curl /Observation?_count=1000 | jq -c '.entry[] | .resource' > Observation
 anvil_curl /Specimen?_count=1000 | jq -c '.entry[] | .resource' > Specimen.ndjson
 
 ```
+
+To retrieve Kids First data:
+
+```commandline
+
+kf_curl https://kf-api-fhir-service.kidsfirstdrc.org/ResearchSubject?_tag=SD_DYPMEHHF&_count=1000 > /tmp/ResearchSubject.json
+kf_curl https://kf-api-fhir-service.kidsfirstdrc.org/Patient?_tag=SD_DYPMEHHF&_count=1000 > /tmp/Patient.json
+kf_curl https://kf-api-fhir-service.kidsfirstdrc.org/Specimen?_tag=SD_DYPMEHHF&_count=1000 > /tmp/Specimen.json
+kf_curl https://kf-api-fhir-service.kidsfirstdrc.org/DocumentReference?_tag=SD_DYPMEHHF&_count=1000 > /tmp/DocumentReference.json
+kf_curl https://kf-api-fhir-service.kidsfirstdrc.org/Observation?_tag=SD_DYPMEHHF&_count=1000 > /tmp/Observation.json
+
+
+```
