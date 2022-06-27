@@ -86,9 +86,8 @@ def _get_token_help():
 
 def kids_first_cookie():
     """AWSELBAuthSessionCookie cookie captured from https://kf-api-fhir-service.kidsfirstdrc.org browser"""
-    assert 'KIDS_FIRST_COOKIE' in os.environ
-    assert os.environ['KIDS_FIRST_COOKIE'].startswith('AWSELBAuthSessionCookie')
-    return os.environ['KIDS_FIRST_COOKIE']
+    if 'KIDS_FIRST_COOKIE' in os.environ:
+        return os.environ['KIDS_FIRST_COOKIE']
 
 
 @click.command()
@@ -100,6 +99,8 @@ def cli(token, url, log_level):
 
         url: FHIR compliant url 'eg https://kf-api-fhir-service.kidsfirstdrc.org/ResearchStudy
     """
+    assert token.startswith('AWSELBAuthSessionCookie')
+
     logging.basicConfig(level=log_level, format=LOG_FORMAT, force=True)
     logger.setLevel(log_level)
     assert logging.getLogger(__name__).level != logging.NOTSET, f"Should be {log_level}"
